@@ -1,0 +1,4 @@
+name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message
+"ml_kem_512/keygen",1018,0.699644,0.699627,ms,,1429.33,,,
+"ml_kem_512/encap",789,889.293,889.298,us,,1124.48,,,
+"ml_kem_512/decap",551,1.19122,1.19122,ms,,839.473,,,
