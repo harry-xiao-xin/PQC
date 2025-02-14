@@ -1,0 +1,15 @@
+Metadata-Version: 2.2
+Name: PQC_PYTHON
+Version: 0.0.1
+Summary: A pqc python library
+Author: zpx
+Author-email: 444047485@qq.com
+Requires-Python: >=3.7
+License-File: LICENSE
+Provides-Extra: test
+Requires-Dist: pytest>=6.0; extra == "test"
+Dynamic: author
+Dynamic: author-email
+Dynamic: provides-extra
+Dynamic: requires-python
+Dynamic: summary

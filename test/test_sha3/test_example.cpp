@@ -6,7 +6,6 @@
 #include <fstream>
 #include <gtest/gtest.h>
 #include <vector>
-#include "test_example.hpp"
 
 TEST(test_sha3_224_test, test_sha3_224) {
     constexpr size_t ilen = 32;
@@ -14,12 +13,12 @@ TEST(test_sha3_224_test, test_sha3_224) {
     std::vector<uint8_t> msg(ilen, 0);
     std::vector<uint8_t> dig(olen, 0);
     auto _dig = std::span<uint8_t, olen>(dig);
-    random_data < uint8_t > (msg);
+    sha3_test_utils::random_data<uint8_t> (msg);
     sha3_224::sha3_224_t hasher;
     hasher.absorb(msg);
     hasher.finalize();
     hasher.digest(_dig);
     std::cout << "SHA3-224" << std::endl << std::endl;
-    std::cout << "Input  : " << to_hex(msg) << "\n";
-    std::cout << "Output : " << to_hex(dig) << "\n";
+    std::cout << "Input  : " << sha3_test_utils::to_hex(msg) << "\n";
+    std::cout << "Output : " << sha3_test_utils::to_hex(dig) << "\n";
 }

@@ -1,0 +1,10 @@
+LICENSE
+README.md
+pyproject.toml
+setup.py
+PQC_PYTHON.egg-info/PKG-INFO
+PQC_PYTHON.egg-info/SOURCES.txt
+PQC_PYTHON.egg-info/dependency_links.txt
+PQC_PYTHON.egg-info/not-zip-safe
+PQC_PYTHON.egg-info/requires.txt
+PQC_PYTHON.egg-info/top_level.txt

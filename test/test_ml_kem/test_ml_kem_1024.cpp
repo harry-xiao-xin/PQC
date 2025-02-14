@@ -1,6 +1,6 @@
 #include "ml_kem/ml_kem_1024.hpp"
 #include "random_shake/randomshake.hpp"
-#include "test_helper.hpp"
+#include "../test_utils/test_helper.hpp"
 #include <gtest/gtest.h>
 
 // For ML-KEM-1024
@@ -105,4 +105,23 @@ TEST(ML_KEM, ML_KEM_1024_DecapsFailureDueToBitFlippedCipherText)
   EXPECT_NE(shared_secret_sender, shared_secret_receiver);
   EXPECT_EQ(shared_secret_receiver, seed_z);
   EXPECT_TRUE(std::equal(shared_secret_receiver.begin(), shared_secret_receiver.end(), std::span(seckey).last<32>().begin()));
+}
+
+TEST(ML_KEM, ml_kem_1024_CRYPTO) {
+    std::array<uint8_t, ml_kem_1024::SEED_D_BYTE_LEN> seed_d{};
+    std::array<uint8_t, ml_kem_1024::SEED_M_BYTE_LEN> seed_m{};
+    std::array<uint8_t, ml_kem_1024::K_PKEY_BYTE_LEN> pubkey{};
+    std::array<uint8_t, ml_kem_1024::K_SKEY_BYTE_LEN> seckey{};
+    std::array<uint8_t, ml_kem_1024::K_CIPHER_TEXT_BYTE_LEN> cipher{};
+    randomshake::randomshake_t<128> csprng{};
+    csprng.generate(seed_d);
+    csprng.generate(seed_m);
+    ml_kem_1024::crypto_keygen(seed_d, pubkey, seckey);
+    std::cout << "PK: " << to_hex(pubkey) << std::endl;
+    std::cout << "SK: " << to_hex(seckey) << std::endl;
+    const auto is_crypto = ml_kem_1024::crypto(seed_m, pubkey, cipher);
+    EXPECT_EQ(is_crypto, true);
+    std::array<uint8_t, ml_kem_1024::SEED_M_BYTE_LEN> new_m{};
+    ml_kem_1024::decrypto(seckey, cipher, new_m);
+    EXPECT_EQ(seed_m, new_m);
 }

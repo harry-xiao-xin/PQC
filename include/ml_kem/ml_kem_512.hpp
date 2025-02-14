@@ -18,7 +18,11 @@ namespace ml_kem_512 {
     inline constexpr size_t PKEY_BYTE_LEN = ml_kem_utils::get_kem_public_key_len(k);
 // 1632 -bytes ML-KEM-512 secret key
     inline constexpr size_t SKEY_BYTE_LEN = ml_kem_utils::get_kem_secret_key_len(k);
-// 32 -bytes seed `m`, used in ML-KEM encapsulation
+    //K-PKE parameters
+    inline constexpr size_t K_PKEY_BYTE_LEN = ml_kem_utils::get_pke_public_key_len(k);
+    inline constexpr size_t K_SKEY_BYTE_LEN = ml_kem_utils::get_pke_secret_key_len(k);
+    inline constexpr size_t K_CIPHER_TEXT_BYTE_LEN = ml_kem_utils::get_pke_cipher_text_len(k, du, dv);
+    // 32 -bytes seed `m`, used in ML-KEM encapsulation
     inline constexpr size_t SEED_M_BYTE_LEN = 32;
 // 768 -bytes ML-KEM-512 cipher text
     inline constexpr size_t CIPHER_TEXT_BYTE_LEN = ml_kem_utils::get_kem_cipher_text_len(k, du, dv);
@@ -49,5 +53,29 @@ namespace ml_kem_512 {
     decapsulate(std::span<const uint8_t, SKEY_BYTE_LEN> seckey, std::span<const uint8_t, CIPHER_TEXT_BYTE_LEN> cipher,
                 std::span<uint8_t, SHARED_SECRET_BYTE_LEN> shared_secret) {
         ml_kem::decapsulate<k, η1, η2, du, dv>(seckey, cipher, shared_secret);
+    }
+
+// Computes a new ML-KEM-512 keypair, given seed `d` and `z`.
+    constexpr void
+    crypto_keygen(std::span<const uint8_t, SEED_D_BYTE_LEN> d,
+                  std::span<uint8_t, K_PKEY_BYTE_LEN> pubkey,
+                  std::span<uint8_t, K_SKEY_BYTE_LEN> seckey) {
+        ml_kem::crypto_keygen<k, η1>(d, pubkey, seckey);
+    }
+
+// Given seed `m` and a ML-KEM-512 public key, this routine computes a ML-KEM-512 cipher text.
+// If, input ML-KEM-512 public key is malformed, encapsulation will fail, returning false.
+    [[nodiscard("If public key is malformed, encapsulation fails")]] constexpr bool
+    crypto(std::span<const uint8_t, SEED_M_BYTE_LEN> m,
+           std::span<const uint8_t, K_PKEY_BYTE_LEN> pubkey,
+           std::span<uint8_t, K_CIPHER_TEXT_BYTE_LEN> cipher) {
+        return ml_kem::crypto<k, η1, η2, du, dv>(m, pubkey, cipher);
+    }
+
+// Given a ML-KEM-512 secret key and a cipher text, this routine computes a fixed size message.
+    constexpr void
+    decrypto(std::span<const uint8_t, K_SKEY_BYTE_LEN> seckey, std::span<const uint8_t, K_CIPHER_TEXT_BYTE_LEN> cipher,
+             std::span<uint8_t, SEED_M_BYTE_LEN> m) {
+        ml_kem::decrypto<k, η1, η2, du, dv>(seckey, cipher, m);
     }
 }

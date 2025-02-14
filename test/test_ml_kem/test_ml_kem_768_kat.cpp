@@ -1,5 +1,5 @@
 #include "ml_kem/ml_kem_768.hpp"
-#include "test_helper.hpp"
+#include "../test_utils/test_helper.hpp"
 #include <fstream>
 #include <gtest/gtest.h>
 

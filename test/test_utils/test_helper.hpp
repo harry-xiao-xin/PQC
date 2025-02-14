@@ -10,6 +10,8 @@
 #include <limits>
 #include <span>
 #include <string_view>
+#include <sstream>
+#include <iomanip>
 
 // Given a hex encoded string of length 2*L, this routine can be used for parsing it as a byte array of length L.
 template<size_t L>
@@ -91,4 +93,15 @@ random_bitflip_in_cipher_text(std::span<uint8_t, cipher_byte_len> cipher, random
   const uint8_t selected_bit_flipped = (~selected_bit) & 0b1;
 
   cipher[random_byte_idx] = (selected_byte & hi_bit_mask) ^ (selected_bit_flipped << random_bit_idx) ^ (selected_byte & lo_bit_mask);
+}
+
+// Given a bytearray of length N, this function converts it to human readable hex string of length N << 1 | N >= 0
+static inline std::string
+to_hex(std::span<const uint8_t> bytes) {
+    std::stringstream ss;
+    ss << std::hex;
+    for (size_t i = 0; i < bytes.size(); i++) {
+        ss << std::setw(2) << std::setfill('0') << static_cast<uint32_t>(bytes[i]);
+    }
+    return ss.str();
 }

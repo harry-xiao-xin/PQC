@@ -1,6 +1,6 @@
 #include "ml_kem/ml_kem_512.hpp"
 #include "random_shake/randomshake.hpp"
-#include "test_helper.hpp"
+#include "../test_utils/test_helper.hpp"
 #include <gtest/gtest.h>
 #include <span>
 
@@ -14,30 +14,24 @@
 // - Receiver can decrypt message ( using secret key ) and produce same shared secret.
 //
 // works as expected.
-TEST(ML_KEM, ML_KEM_512_KeygenEncapsDecaps)
-{
-  std::array<uint8_t, ml_kem_512::SEED_D_BYTE_LEN> seed_d{};
-  std::array<uint8_t, ml_kem_512::SEED_Z_BYTE_LEN> seed_z{};
-  std::array<uint8_t, ml_kem_512::SEED_M_BYTE_LEN> seed_m{};
-
-  std::array<uint8_t, ml_kem_512::PKEY_BYTE_LEN> pubkey{};
-  std::array<uint8_t, ml_kem_512::SKEY_BYTE_LEN> seckey{};
-  std::array<uint8_t, ml_kem_512::CIPHER_TEXT_BYTE_LEN> cipher{};
-
-  std::array<uint8_t, ml_kem_512::SHARED_SECRET_BYTE_LEN> shared_secret_sender{};
-  std::array<uint8_t, ml_kem_512::SHARED_SECRET_BYTE_LEN> shared_secret_receiver{};
-
-  randomshake::randomshake_t<128> csprng{};
-  csprng.generate(seed_d);
-  csprng.generate(seed_z);
-  csprng.generate(seed_m);
-
-  ml_kem_512::keygen(seed_d, seed_z, pubkey, seckey);
-  const auto is_encapsulated = ml_kem_512::encapsulate(seed_m, pubkey, cipher, shared_secret_sender);
-  ml_kem_512::decapsulate(seckey, cipher, shared_secret_receiver);
-
-  EXPECT_TRUE(is_encapsulated);
-  EXPECT_EQ(shared_secret_sender, shared_secret_receiver);
+TEST(ML_KEM, ML_KEM_512_KeygenEncapsDecaps) {
+    std::array<uint8_t, ml_kem_512::SEED_D_BYTE_LEN> seed_d{};
+    std::array<uint8_t, ml_kem_512::SEED_Z_BYTE_LEN> seed_z{};
+    std::array<uint8_t, ml_kem_512::SEED_M_BYTE_LEN> seed_m{};
+    std::array<uint8_t, ml_kem_512::PKEY_BYTE_LEN> pubkey{};
+    std::array<uint8_t, ml_kem_512::SKEY_BYTE_LEN> seckey{};
+    std::array<uint8_t, ml_kem_512::CIPHER_TEXT_BYTE_LEN> cipher{};
+    std::array<uint8_t, ml_kem_512::SHARED_SECRET_BYTE_LEN> shared_secret_sender{};
+    std::array<uint8_t, ml_kem_512::SHARED_SECRET_BYTE_LEN> shared_secret_receiver{};
+    randomshake::randomshake_t<128> csprng{};
+    csprng.generate(seed_d);
+    csprng.generate(seed_z);
+    csprng.generate(seed_m);
+    ml_kem_512::keygen(seed_d, seed_z, pubkey, seckey);
+    const auto is_encapsulated = ml_kem_512::encapsulate(seed_m, pubkey, cipher, shared_secret_sender);
+    ml_kem_512::decapsulate(seckey, cipher, shared_secret_receiver);
+    EXPECT_TRUE(is_encapsulated);
+    EXPECT_EQ(shared_secret_sender, shared_secret_receiver);
 }
 
 // For ML-KEM-512
@@ -45,29 +39,22 @@ TEST(ML_KEM, ML_KEM_512_KeygenEncapsDecaps)
 // - Generate a valid keypair.
 // - Malform public key s.t. last coefficient of polynomial vector is not properly reduced.
 // - Attempt to encapsulate using malformed public key. It must fail.
-TEST(ML_KEM, ML_KEM_512_EncapsFailureDueToNonReducedPubKey)
-{
-  std::array<uint8_t, ml_kem_512::SEED_D_BYTE_LEN> seed_d{};
-  std::array<uint8_t, ml_kem_512::SEED_Z_BYTE_LEN> seed_z{};
-  std::array<uint8_t, ml_kem_512::SEED_M_BYTE_LEN> seed_m{};
-
-  std::array<uint8_t, ml_kem_512::PKEY_BYTE_LEN> pubkey{};
-  std::array<uint8_t, ml_kem_512::SKEY_BYTE_LEN> seckey{};
-  std::array<uint8_t, ml_kem_512::CIPHER_TEXT_BYTE_LEN> cipher{};
-
-  std::array<uint8_t, ml_kem_512::SHARED_SECRET_BYTE_LEN> shared_secret{};
-
-  randomshake::randomshake_t<128> csprng{};
-  csprng.generate(seed_d);
-  csprng.generate(seed_z);
-  csprng.generate(seed_m);
-
-  ml_kem_512::keygen(seed_d, seed_z, pubkey, seckey);
-
-  make_malformed_pubkey<pubkey.size()>(pubkey);
-  const auto is_encapsulated = ml_kem_512::encapsulate(seed_m, pubkey, cipher, shared_secret);
-
-  EXPECT_FALSE(is_encapsulated);
+TEST(ML_KEM, ML_KEM_512_EncapsFailureDueToNonReducedPubKey) {
+    std::array<uint8_t, ml_kem_512::SEED_D_BYTE_LEN> seed_d{};
+    std::array<uint8_t, ml_kem_512::SEED_Z_BYTE_LEN> seed_z{};
+    std::array<uint8_t, ml_kem_512::SEED_M_BYTE_LEN> seed_m{};
+    std::array<uint8_t, ml_kem_512::PKEY_BYTE_LEN> pubkey{};
+    std::array<uint8_t, ml_kem_512::SKEY_BYTE_LEN> seckey{};
+    std::array<uint8_t, ml_kem_512::CIPHER_TEXT_BYTE_LEN> cipher{};
+    std::array<uint8_t, ml_kem_512::SHARED_SECRET_BYTE_LEN> shared_secret{};
+    randomshake::randomshake_t<128> csprng{};
+    csprng.generate(seed_d);
+    csprng.generate(seed_z);
+    csprng.generate(seed_m);
+    ml_kem_512::keygen(seed_d, seed_z, pubkey, seckey);
+    make_malformed_pubkey<pubkey.size()>(pubkey);
+    const auto is_encapsulated = ml_kem_512::encapsulate(seed_m, pubkey, cipher, shared_secret);
+    EXPECT_FALSE(is_encapsulated);
 }
 
 // For ML-KEM-512
@@ -78,32 +65,57 @@ TEST(ML_KEM, ML_KEM_512_EncapsFailureDueToNonReducedPubKey)
 // - Attempt to decapsulate bit-flipped cipher text, using valid secret key. Must fail *implicitly*.
 // - Shared secret of sender and receiver must not match.
 // - Shared secret at receiver's end must match `seed_z`, which is last 32 -bytes of secret key.
-TEST(ML_KEM, ML_KEM_512_DecapsFailureDueToBitFlippedCipherText)
-{
-  std::array<uint8_t, ml_kem_512::SEED_D_BYTE_LEN> seed_d{};
-  std::array<uint8_t, ml_kem_512::SEED_Z_BYTE_LEN> seed_z{};
-  std::array<uint8_t, ml_kem_512::SEED_M_BYTE_LEN> seed_m{};
-
-  std::array<uint8_t, ml_kem_512::PKEY_BYTE_LEN> pubkey{};
-  std::array<uint8_t, ml_kem_512::SKEY_BYTE_LEN> seckey{};
-  std::array<uint8_t, ml_kem_512::CIPHER_TEXT_BYTE_LEN> cipher{};
-
-  std::array<uint8_t, ml_kem_512::SHARED_SECRET_BYTE_LEN> shared_secret_sender{};
-  std::array<uint8_t, ml_kem_512::SHARED_SECRET_BYTE_LEN> shared_secret_receiver{};
-
-  randomshake::randomshake_t<128> csprng{};
-  csprng.generate(seed_d);
-  csprng.generate(seed_z);
-  csprng.generate(seed_m);
-
-  ml_kem_512::keygen(seed_d, seed_z, pubkey, seckey);
-  const auto is_encapsulated = ml_kem_512::encapsulate(seed_m, pubkey, cipher, shared_secret_sender);
-
-  random_bitflip_in_cipher_text<cipher.size()>(cipher, csprng);
-  ml_kem_512::decapsulate(seckey, cipher, shared_secret_receiver);
-
-  EXPECT_TRUE(is_encapsulated);
-  EXPECT_NE(shared_secret_sender, shared_secret_receiver);
-  EXPECT_EQ(shared_secret_receiver, seed_z);
-  EXPECT_TRUE(std::equal(shared_secret_receiver.begin(), shared_secret_receiver.end(), std::span(seckey).last<32>().begin()));
+TEST(ML_KEM, ML_KEM_512_DecapsFailureDueToBitFlippedCipherText) {
+    std::array<uint8_t, ml_kem_512::SEED_D_BYTE_LEN> seed_d{};
+    std::array<uint8_t, ml_kem_512::SEED_Z_BYTE_LEN> seed_z{};
+    std::array<uint8_t, ml_kem_512::SEED_M_BYTE_LEN> seed_m{};
+    std::array<uint8_t, ml_kem_512::PKEY_BYTE_LEN> pubkey{};
+    std::array<uint8_t, ml_kem_512::SKEY_BYTE_LEN> seckey{};
+    std::array<uint8_t, ml_kem_512::CIPHER_TEXT_BYTE_LEN> cipher{};
+    std::array<uint8_t, ml_kem_512::SHARED_SECRET_BYTE_LEN> shared_secret_sender{};
+    std::array<uint8_t, ml_kem_512::SHARED_SECRET_BYTE_LEN> shared_secret_receiver{};
+    randomshake::randomshake_t<128> csprng{};
+    csprng.generate(seed_d);
+    csprng.generate(seed_z);
+    csprng.generate(seed_m);
+    ml_kem_512::keygen(seed_d, seed_z, pubkey, seckey);
+    const auto is_encapsulated = ml_kem_512::encapsulate(seed_m, pubkey, cipher, shared_secret_sender);
+    random_bitflip_in_cipher_text<cipher.size()>(cipher, csprng);
+    ml_kem_512::decapsulate(seckey, cipher, shared_secret_receiver);
+    EXPECT_TRUE(is_encapsulated);
+    EXPECT_NE(shared_secret_sender, shared_secret_receiver);
+    EXPECT_EQ(shared_secret_receiver, seed_z);
+    EXPECT_TRUE(std::equal(shared_secret_receiver.begin(), shared_secret_receiver.end(), std::span(seckey).last<32>().begin()));
 }
+
+TEST(ML_KEM, ML_KEM_512_CRYPTO_KEY_GENERATE) {
+    std::array<uint8_t, ml_kem_512::SEED_D_BYTE_LEN> seed_d{};
+    std::array<uint8_t, ml_kem_512::K_PKEY_BYTE_LEN> pubkey{};
+    std::array<uint8_t, ml_kem_512::K_SKEY_BYTE_LEN> seckey{};
+    std::array<uint8_t, ml_kem_512::K_CIPHER_TEXT_BYTE_LEN> cipher{};
+    randomshake::randomshake_t<128> csprng{};
+    csprng.generate(seed_d);
+    ml_kem_512::crypto_keygen(seed_d, pubkey, seckey);
+    std::cout << "PK: " << to_hex(pubkey) << std::endl;
+    std::cout << "SK: " << to_hex(seckey) << std::endl;
+}
+
+TEST(ML_KEM, ML_KEM_512_CRYPTO) {
+    std::array<uint8_t, ml_kem_512::SEED_D_BYTE_LEN> seed_d{};
+    std::array<uint8_t, ml_kem_512::SEED_M_BYTE_LEN> seed_m{};
+    std::array<uint8_t, ml_kem_512::K_PKEY_BYTE_LEN> pubkey{};
+    std::array<uint8_t, ml_kem_512::K_SKEY_BYTE_LEN> seckey{};
+    std::array<uint8_t, ml_kem_512::K_CIPHER_TEXT_BYTE_LEN> cipher{};
+    randomshake::randomshake_t<128> csprng{};
+    csprng.generate(seed_d);
+    csprng.generate(seed_m);
+    ml_kem_512::crypto_keygen(seed_d, pubkey, seckey);
+    std::cout << "PK: " << to_hex(pubkey) << std::endl;
+    std::cout << "SK: " << to_hex(seckey) << std::endl;
+    const auto is_crypto = ml_kem_512::crypto(seed_m, pubkey, cipher);
+    EXPECT_EQ(is_crypto, true);
+    std::array<uint8_t, ml_kem_512::SEED_M_BYTE_LEN> new_m{};
+    ml_kem_512::decrypto(seckey, cipher, new_m);
+    EXPECT_EQ(seed_m, new_m);
+}
+

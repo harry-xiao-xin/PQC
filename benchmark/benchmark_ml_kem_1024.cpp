@@ -84,3 +84,5 @@ BENCHMARK(bench_ml_kem_1024_encapsulate)->Name("ml_kem_1024/encap")->Unit(benchm
         ->ComputeStatistics("min", compute_min)->ComputeStatistics("max", compute_max);
 BENCHMARK(bench_ml_kem_1024_decapsulate)->Name("ml_kem_1024/decap")->Unit(benchmark::kMillisecond)
         ->ComputeStatistics("min", compute_min)->ComputeStatistics("max", compute_max);
+
+

@@ -42,9 +42,9 @@ target-version = "py37"
 
 [tool.ruff.lint]
 extend-select = [
-    "B",    # flake8-bugbear
-    "I",    # isort
-    "PGH",  # pygrep-hooks
-    "RUF",  # Ruff-specific
-    "UP",   # pyupgrade
+  "B",    # flake8-bugbear
+  "I",    # isort
+  "PGH",  # pygrep-hooks
+  "RUF",  # Ruff-specific
+  "UP",   # pyupgrade
 ]

@@ -77,6 +77,7 @@ void bench_ml_kem_512_decapsulate(benchmark::State &state) {
     state.SetItemsProcessed(state.iterations());
     assert(shared_secret_sender == shared_secret_receiver);
 }
+
 BENCHMARK(bench_ml_kem_512_keygen)->Unit(benchmark::kMillisecond)->Name("ml_kem_512/keygen")
         ->ComputeStatistics("min", compute_min)->ComputeStatistics("max", compute_max);
 BENCHMARK(bench_ml_kem_512_encapsulate)->Unit(benchmark::kMillisecond)->Name("ml_kem_512/encap")

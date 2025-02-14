@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.24)
+
+set(CMAKE_CROSSCOMPILING 1)
+set(CMAKE_SYSTEM_NAME WIN32)
+
 project(PQC CXX)
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_BUILD_TYPE Release)
 #############################################
 # Base Config
 #############################################
@@ -20,11 +25,14 @@ add_executable(${PROJECT_NAME} main.cpp ${DIR_PYBIND})
 option(BENCHMARK "Benchmark Module" ON)
 message("BENCHMARK_ENABLE Value: ${BENCHMARK}")
 # FSANITIZE
-option(FSANITIZE "Fsanitize Module" OFF)
+option(FSANITIZE "Fsanitize Module" ON)
 message("FSANITIZE_ENABLE Value: ${FSANITIZE}")
 # PYBIND11
 option(PYBIND11 "Pybind11 Module" ON)
 message("PYBIND11_ENABLE Value: ${PYBIND11}")
+# JNI
+option(JNI "JNI Module" OFF)
+message("JNI_ENABLE Value: ${JNI}")
 
 if (BENCHMARK)
     find_package(benchmark REQUIRED)
@@ -35,14 +43,32 @@ if (FSANITIZE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address ")
 endif (FSANITIZE)
 if (PYBIND11)
-#    set(pybind11_INCLUDE_DIRS  /root/miniconda3/lib/python3.9/site-packages/pybind11/share/cmake/pybind11)
-#    find_package(pybind11 REQUIRED)
     find_package(PythonLibs REQUIRED)
+    include_directories(${PYTHON_INCLUDE_DIRS})
     add_subdirectory(pybind11)
+    target_link_libraries(${PROJECT_NAME} ${PYTHON_LIBRARIES})
     pybind11_add_module(PQC_PYTHON src/pybind/py_interface.cpp)
     target_compile_definitions(PQC_PYTHON PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO})
 endif (PYBIND11)
 
+if (JNI)
+     SET(Java_JAR_EXECUTABLE "/usr/local/jdk1.8.0_202/bin/java")
+     SET(Java_JAVAC_EXECUTABLE "/usr/local/jdk1.8.0_202/bin/javac")
+     SET(Java_JAVAH_EXECUTABLE "/usr/local/jdk1.8.0_202/bin/javah")
+     SET(Java_JAVADOC_EXECUTABLE "/usr/local/jdk1.8.0_202/bin/javadoc")
+    find_package(Java REQUIRED)
+    find_package(JNI REQUIRED)
+    include(UseJava)
+    include_directories(${JNI_INCLUDE_DIRS})
+    add_jar(PQCJNI
+            VERSION 0.0.1
+            ENTRY_POINT com.example.pqc.MLKEMJNI
+            GENERATE_NATIVE_HEADERS PQCJNI-native
+            SOURCES src/java/com/example/pqc/MLKEMJNI.java)
+    add_library(PQCJNI-cpp SHARED src/cpp/MLKEMJNI-cpp.cpp)
+    target_include_directories (PQCJNI-cpp PRIVATE ${JNI_INCLUDE_DIRS})
+    target_link_libraries (PQCJNI-cpp PRIVATE PQCJNI-native ${JNI_LIBRARIES})
+endif (JNI)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${GTEST_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} ${link_lib})
