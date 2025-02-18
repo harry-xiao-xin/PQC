@@ -41,6 +41,7 @@ cmake-build-debug-coverage/
 cmake-build-debug-mingw/
 cmake-build-debug-wsl/
 pybind11/
+bin/
 
 
 bin### C++ template
