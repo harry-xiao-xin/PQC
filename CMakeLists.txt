@@ -1,38 +1,52 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.20)
 
-set(CMAKE_CROSSCOMPILING 1)
-set(CMAKE_SYSTEM_NAME WIN32)
-
-project(PQC CXX)
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_BUILD_TYPE Release)
 #############################################
 # Base Config
 #############################################
-find_package(GTest CONFIG REQUIRED)
-set(link_lib glog pthread gtest)
+project(PQC CXX)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_BUILD_TYPE Release)
+############################################
+# Complex compiler
+############################################
+# Targeted operating system.
+#set(CMAKE_SYSTEM_NAME Windows)
+## Use mingw 64-bit compilers.
+#set(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc-posix)
+#set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-c++-posix)
+#set(CMAKE_FIND_ROOT_PATH /usr/x86_64-w64-mingw32/)
+#
+## Adjust the default behavior of the find commands:
+## search headers and libraries in the target environment
+#set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+############################################
+
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
 include_directories(./include)
-aux_source_directory(./src/pybind DIR_PYBIND)
-add_executable(${PROJECT_NAME} main.cpp ${DIR_PYBIND})
+#aux_source_directory(./src/pybind DIR_PYBIND)
+#add_executable(${PROJECT_NAME} main.cpp ${DIR_PYBIND})
+add_executable(${PROJECT_NAME} main.cpp)
 
 #############################################
 # Compile Config
 #############################################
 # BENCHMARK
-option(BENCHMARK "Benchmark Module" ON)
+option(BENCHMARK "Benchmark Module" OFF)
 message("BENCHMARK_ENABLE Value: ${BENCHMARK}")
 # FSANITIZE
-option(FSANITIZE "Fsanitize Module" ON)
+option(FSANITIZE "Fsanitize Module" OFF)
 message("FSANITIZE_ENABLE Value: ${FSANITIZE}")
 # PYBIND11
-option(PYBIND11 "Pybind11 Module" ON)
+option(PYBIND11 "Pybind11 Module" OFF)
 message("PYBIND11_ENABLE Value: ${PYBIND11}")
 # JNI
-option(JNI "JNI Module" OFF)
+option(JNI "JNI Module" ON)
 message("JNI_ENABLE Value: ${JNI}")
+# GTEST
+option(GTEST "GTEST Module" OFF)
+message("GTEST_ENABLE Value: ${GTEST}")
 
 if (BENCHMARK)
     find_package(benchmark REQUIRED)
@@ -52,10 +66,10 @@ if (PYBIND11)
 endif (PYBIND11)
 
 if (JNI)
-     SET(Java_JAR_EXECUTABLE "/usr/local/jdk1.8.0_202/bin/java")
-     SET(Java_JAVAC_EXECUTABLE "/usr/local/jdk1.8.0_202/bin/javac")
-     SET(Java_JAVAH_EXECUTABLE "/usr/local/jdk1.8.0_202/bin/javah")
-     SET(Java_JAVADOC_EXECUTABLE "/usr/local/jdk1.8.0_202/bin/javadoc")
+#    SET(Java_JAR_EXECUTABLE "/usr/local/jdk1.8.0_202/bin/java")
+#    SET(Java_JAVAC_EXECUTABLE "/usr/local/jdk1.8.0_202/bin/javac")
+#    SET(Java_JAVAH_EXECUTABLE "/usr/local/jdk1.8.0_202/bin/javah")
+#    SET(Java_JAVADOC_EXECUTABLE "/usr/local/jdk1.8.0_202/bin/javadoc")
     find_package(Java REQUIRED)
     find_package(JNI REQUIRED)
     include(UseJava)
@@ -66,11 +80,14 @@ if (JNI)
             GENERATE_NATIVE_HEADERS PQCJNI-native
             SOURCES src/java/com/example/pqc/MLKEMJNI.java)
     add_library(PQCJNI-cpp SHARED src/cpp/MLKEMJNI-cpp.cpp)
-    target_include_directories (PQCJNI-cpp PRIVATE ${JNI_INCLUDE_DIRS})
-    target_link_libraries (PQCJNI-cpp PRIVATE PQCJNI-native ${JNI_LIBRARIES})
+    target_include_directories(PQCJNI-cpp PRIVATE ${JNI_INCLUDE_DIRS})
+    target_link_libraries(PQCJNI-cpp PRIVATE PQCJNI-native ${JNI_LIBRARIES})
 endif (JNI)
-
-target_include_directories(${PROJECT_NAME} PUBLIC ${GTEST_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} ${link_lib})
-enable_testing()
-add_subdirectory(test)
+if (GTEST)
+    find_package(GTest CONFIG REQUIRED)
+    set(link_lib glog pthread gtest)
+    target_include_directories(${PROJECT_NAME} PUBLIC ${GTEST_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} ${link_lib})
+    enable_testing()
+    add_subdirectory(test)
+endif (GTEST)

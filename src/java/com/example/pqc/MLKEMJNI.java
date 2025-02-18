@@ -48,12 +48,12 @@ public class MLKEMJNI {
             try {
                 System.load(
                         FileSystems.getDefault()
-                                .getPath("./libPQCJNI-cpp.dll") // Dynamic link
+                                .getPath("./lib/libPQCJNI-cpp.dll") // Dynamic link
                                 .normalize().toAbsolutePath().toString());
             } catch (UnsatisfiedLinkError e) {
                 System.load(
                         FileSystems.getDefault()
-                                .getPath("./build/libPQCJNI-cpp.lib") // Static link
+                                .getPath("./lib/libPQCJNI-cpp.lib") // Static link
                                 .normalize().toAbsolutePath().toString());
             }
         } else {
@@ -61,12 +61,12 @@ public class MLKEMJNI {
             try {
                 System.load(
                         FileSystems.getDefault()
-                                .getPath("./libPQCJNI-cpp.so") // Dynamic link
+                                .getPath("./lib/libPQCJNI-cpp.so") // Dynamic link
                                 .normalize().toAbsolutePath().toString());
             } catch (UnsatisfiedLinkError e) {
                 System.load(
                         FileSystems.getDefault()
-                                .getPath("./libPQCJNI-cpp.a") // Static link
+                                .getPath("./lib/libPQCJNI-cpp.a") // Static link
                                 .normalize().toAbsolutePath().toString());
             }
         }
@@ -129,8 +129,9 @@ public class MLKEMJNI {
         byte[] m2 = mlkem.mlkem512DeCrypto(sk, cipher);
         System.out.printf("decrypto cost: %f us\n", timeElapsed / 1000.0);
         assert m1.equals(new String(m2));
+        System.out.println("m1: "+m1);
+        System.out.println("m2: "+  new String(m2));
         System.out.println("=====================================================================================");
-
     }
 
     public static void testMLKEM512Capsulate() {
@@ -247,6 +248,17 @@ public class MLKEMJNI {
     }
 
     public static void main(String[] args) {
+        System.out.println("===============================TEST========================================");
+//         long t = 0L, timeElapsed = 0L;
+//         MLKEMJNI mlkem = new MLKEMJNI();
+//         byte[] pk = new byte[MLKEM_512_PK_LEN];
+//         byte[] sk = new byte[MLKEM_512_SK_LEN];
+//         byte[] cipher = new byte[MLKEM_512_CIPHER_LEN];
+//         byte[] shared_key = new byte[MLKEM_512_SHARED_KEY_LEN];
+//         mlkem.mlkem512Keygen(pk, sk);
+//         System.out.println(new String(pk));
+//         System.out.println(new String(sk));
+
         testMLKEM512Capsulate();
         testMLKEM512Crypto();
         testMLKEM768Capsulate();
